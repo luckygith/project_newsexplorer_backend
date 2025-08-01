@@ -1,0 +1,31 @@
+{
+  "name": "project_newsexplorer_backend",
+  "version": "1.0.0",
+  "description": "Backend API for News Explorer application",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luckygith/project_newsexplorer_backend.git"
+  },
+  "keywords": [
+    "news",
+    "api",
+    "backend",
+    "express",
+    "mongodb"
+  ],
+  "author": "Luckylin Shiella Villamor",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luckygith/project_newsexplorer_backend/issues"
+  },
+  "homepage": "https://github.com/luckygith/project_newsexplorer_backend#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

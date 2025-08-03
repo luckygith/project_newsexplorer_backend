@@ -36,6 +36,12 @@ const articleSchema = new mongoose.Schema({
   link: {
     required: true,
     type: String,
+    validate: {
+      validator(value) {
+        return validator.isURL(value);
+      },
+      message: "You must enter a valid URL",
+    },
   },
   urlToImage: {
     required: true,
@@ -51,6 +57,7 @@ const articleSchema = new mongoose.Schema({
     required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
+    // select: false,
   },
 });
 

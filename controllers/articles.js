@@ -1,105 +1,56 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const User = require("../models/user");
-
-const { JWT_SECRET } = require("../utils/config");
-
 const BadRequestError = require("../errors/bad-request-error");
-const ConflictError = require("../errors/conflict-error");
-const UnauthorizedError = require("../errors/unauthorized-error");
 const NotFoundError = require("../errors/not-found-error");
+const ForbiddenError = require("../errors/forbidden-error");
 
-const login = (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return next(new BadRequestError("Missing Info: Email or Password"));
-  }
-  return User.findUserByCredentials(email, password) // calling model method to verify creds
-    .then((user) => {
-      console.log(user);
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: "7d",
-      });
-      return res.status(200).send({ token }); // Return 200 and the token
-    })
+const Article = require("../models/article");
+
+const createArticleCard = (req, res, next) => {
+  const { q, title, description, publishedAt, source, link, urlToImage } = req.body;
+  Article.create({ q, title, description, publishedAt, source, link, urlToImage owner: req.user._id })
+    .then((articles) => res.send(articles))
     .catch((error) => {
-      if (error.message === "User not found") {
-        return next(new ConflictError("Authentication Error: user"));
-      }
-      if (error.message === "Incorrect password") {
-        return next(new UnauthorizedError("Authentication Error: password"));
-      }
-      return next(error);
-    });
-};
-
-const getCurrentUser = (req, res, next) => {
-  const userId = req.user._id;
-  User.findById(userId)
-
-    .then((user) => {
-      if (!user) {
-        return next(new NotFoundError("User not found"));
-      }
-      return res.status(200).send(user);
-    })
-    .catch((error) => {
-      if (error.name === "CastError") {
-        return next(new BadRequestError("UserId is invalid"));
-      }
-      return next(error);
-    });
-};
-
-const createUser = (req, res, next) => {
-  const { email, password, name, avatar } = req.body;
-
-  if (!email || !password || !name || !avatar) {
-    return next(new BadRequestError("Missing required fields"));
-  }
-
-  return User.findOne({ email })
-    .then((userId) => {
-      if (userId) {
-        throw new Error("User already exists");
-      }
-      return bcrypt.hash(password, 10);
-    })
-    .then((hash) =>
-      User.create({
-        name,
-        avatar,
-        email,
-        password: hash, // adding the hash to the db
-      })
-    )
-
-    .then((user) =>
-      res.status(201).send({
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      })
-    ) // EXCLUDE SENDING PASSWORD DETAILS!
-    .catch((error) => {
-      console.error("Error creating user:", error);
-
-      if (
-        error.code === 11000 ||
-        error.message.includes("User already exists")
-      ) {
-        return next(new ConflictError("Error: User already exists"));
-      }
       if (error.name === "ValidationError") {
-        return next(new BadRequestError("Error: name validation"));
+        next(
+          new BadRequestError("Could not update with information provided.")
+        );
+      } else {
+        next(error);
       }
-      return next(error);
     });
 };
 
-module.exports = {
-  getCurrentUser,
-  createUser,
-  login,
+
+const getArticles = (req, res, next) => {
+  Article.find({})
+    .then((articles) => res.send(articles))
+    .catch((error) => {
+      next(error);
+    });
+};
+
+const deleteArticle = (req, res, next) => {
+  const { articleId } = req.params;
+  const userId = req.user._id;
+
+  Article.findById(articleId)
+    .then((article) => {
+      if (!article) {
+        return next(new NotFoundError("Item not found"));
+      }
+      if (article.owner.toString() !== userId) {
+        return next(new ForbiddenError("Forbidden error: revoked user accessed"));
+      }
+
+      return Article.findByIdAndDelete(articleId).then(() =>
+        res.status(200).send({ message: "Item successfully deleted" })
+      );
+    })
+    .catch((error) => {
+      console.error(error);
+      if (error.name === "CastError") {
+        next(new BadRequestError("Failed to delete article"));
+      } else {
+        next(error);
+      }
+    });
 };

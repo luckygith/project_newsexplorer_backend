@@ -10,7 +10,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-const article = new mongoose.Schema({
+const articleSchema = new mongoose.Schema({
   q: {
     type: String,
     required: true,
@@ -48,11 +48,10 @@ const article = new mongoose.Schema({
     },
   },
   owner: {
-    // a link to the item author's model of the ObjectId type, a required field
     required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
   },
 });
 
-module.exports = mongoose.model("clothingItem", clothingSchema);
+module.exports = mongoose.model("article", articleSchema);

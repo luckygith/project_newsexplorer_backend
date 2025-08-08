@@ -1,4 +1,10 @@
 const router = require("express").Router();
+
+const {
+  validateArticleItemBody,
+  validateUserArticleId,
+} = require("../middlewares/validation");
+
 const {
   getArticles,
   createArticle,
@@ -9,9 +15,9 @@ const {
 router.get("/", getArticles);
 
 // POST /articles
-router.post("/", createArticle);
+router.post("/", validateArticleItemBody, createArticle);
 
 // DELETE /articles/:articleId
-router.delete("/:articleId", deleteArticle);
+router.delete("/:articleId", validateUserArticleId, deleteArticle);
 
 module.exports = router;

@@ -3,11 +3,16 @@ const express = require("express");
 const app = express();
 
 const router = require("express").Router();
+const {
+  validateUserLoginBody,
+  validateUserInfoBody,
+} = require("../middlewares/validation");
 
 const userRouter = require("./users");
 const articleRouter = require("./articles");
 
 const { login, createUser } = require("../controllers/users");
+const auth = require("../middlewares/auth");
 
 const NotFoundError = require("../errors/not-found-error");
 
@@ -18,8 +23,8 @@ app.get("/crash-test", () => {
 });
 
 // No authentication
-router.post("/signup", createUser);
-router.post("/signin", login);
+router.post("/signup", validateUserLoginBody, createUser);
+router.post("/signin", validateUserLoginBody, login);
 router.use("/items", articleRouter);
 
 // Req authentication

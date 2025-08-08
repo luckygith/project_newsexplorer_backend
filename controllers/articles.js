@@ -4,9 +4,19 @@ const ForbiddenError = require("../errors/forbidden-error");
 
 const Article = require("../models/article");
 
-const createArticleCard = (req, res, next) => {
-  const { q, title, description, publishedAt, source, link, urlToImage } = req.body;
-  Article.create({ q, title, description, publishedAt, source, link, urlToImage owner: req.user._id })
+const createArticle = (req, res, next) => {
+  const { q, title, description, publishedAt, source, link, urlToImage } =
+    req.body;
+  Article.create({
+    q,
+    title,
+    description,
+    publishedAt,
+    source,
+    link,
+    urlToImage,
+    owner: req.user._id,
+  })
     .then((articles) => res.send(articles))
     .catch((error) => {
       if (error.name === "ValidationError") {
@@ -18,7 +28,6 @@ const createArticleCard = (req, res, next) => {
       }
     });
 };
-
 
 const getArticles = (req, res, next) => {
   Article.find({})
@@ -38,7 +47,9 @@ const deleteArticle = (req, res, next) => {
         return next(new NotFoundError("Item not found"));
       }
       if (article.owner.toString() !== userId) {
-        return next(new ForbiddenError("Forbidden error: revoked user accessed"));
+        return next(
+          new ForbiddenError("Forbidden error: revoked user accessed")
+        );
       }
 
       return Article.findByIdAndDelete(articleId).then(() =>
@@ -53,4 +64,10 @@ const deleteArticle = (req, res, next) => {
         next(error);
       }
     });
+};
+
+module.exports = {
+  createArticle,
+  getArticles,
+  deleteArticle,
 };

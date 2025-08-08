@@ -1,5 +1,3 @@
-# project_newsexplorer_backend
+# Project_newsexplorer_backend
 
-# project_newsexplorer_backend
-
-testing branch 2
+under construction

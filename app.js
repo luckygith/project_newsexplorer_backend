@@ -1,16 +1,25 @@
 require("dotenv").config();
 const { errors } = require("celebrate");
 const express = require("express");
-
 const cors = require("cors");
 const mongoose = require("mongoose");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 const { errorHandler } = require("./middlewares/error-handler");
 const mainRouter = require("./routes/index");
 
-const { PORT = 3000 } = process.env;
-
 const app = express();
+
+const { PORT = 3001 } = process.env;
+
+app.use(cors());
+
+app.use(express.json());
+
+// USE ROUTER
+app.use(requestLogger);
+
+// App's Main App router
+app.use("/", mainRouter);
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
@@ -22,14 +31,6 @@ mongoose
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
 });
-
-// USE ROUTER
-app.use(requestLogger);
-
-app.use(express.json());
-
-// App's router
-app.use("/", mainRouter);
 
 app.use(errorLogger); // enabling error loger after routes and before error
 

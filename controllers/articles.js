@@ -40,6 +40,7 @@ const getArticles = (req, res, next) => {
 const deleteArticle = (req, res, next) => {
   const { articleId } = req.params;
   const userId = req.user._id;
+  ç;
 
   Article.findById(articleId)
     .then((article) => {

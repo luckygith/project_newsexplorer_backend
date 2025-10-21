@@ -16,14 +16,18 @@ const auth = require("../middlewares/auth");
 
 const NotFoundError = require("../errors/not-found-error");
 
-app.get("/crash-test", () => {
+app.get("/test", (req, res) => {
+  res.send("Server is working!");
+});
+
+router.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash now");
   }, 0);
 });
 
 // No authentication
-router.post("/signup", validateUserLoginBody, createUser);
+router.post("/signup", validateUserInfoBody, createUser);
 router.post("/signin", validateUserLoginBody, login);
 router.use("/items", articleRouter);
 

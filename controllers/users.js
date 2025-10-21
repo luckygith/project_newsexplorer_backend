@@ -41,6 +41,9 @@ const getCurrentUser = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError("User not found"));
       }
+      console.log("Full user object from DB:", user);
+      console.log("User username field:", user.username);
+      console.log("User email field:", user.email);
       return res.status(200).send(user);
     })
     .catch((error) => {
@@ -67,8 +70,7 @@ const createUser = (req, res, next) => {
     })
     .then((hash) =>
       User.create({
-        name,
-        avatar,
+        username,
         email,
         password: hash, // adding the hash to the db
       })
@@ -76,7 +78,7 @@ const createUser = (req, res, next) => {
 
     .then((user) =>
       res.status(201).send({
-        username: user.name,
+        username: user.username,
         email: user.email,
         _id: user._id,
       })
@@ -90,7 +92,7 @@ const createUser = (req, res, next) => {
       ) {
         return next(new ConflictError("Error: User already exists"));
       }
-      if (error.name === "ValidationError") {
+      if (error.username === "ValidationError") {
         return next(new BadRequestError("Error: name validation"));
       }
       return next(error);
